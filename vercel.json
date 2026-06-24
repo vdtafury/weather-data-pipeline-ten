@@ -1,0 +1,14 @@
+{
+  "buildCommand": "cd frontend-react && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "frontend-react/dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

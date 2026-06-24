@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.cache
+.cache.sqlite
+
+# Node
+frontend-react/node_modules/
+frontend-react/dist/
+node_modules/
+
+# OS Files
+.DS_Store
+
+# Environment
+.env
+.vercel
