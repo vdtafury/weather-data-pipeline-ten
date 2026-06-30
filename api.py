@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import pandas as pd
 import json
+import threading
+import time
+import asyncio
+from fastapi.responses import StreamingResponse
+from confluent_kafka import Consumer, KafkaError
 
 app = FastAPI(title="Weather Data Engine API")
 
@@ -14,6 +19,75 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Global cache for real-time metrics
+latest_metrics_cache = {}
+
+@app.on_event("startup")
+def startup_event():
+    # Pre-populate cache from CSV
+    try:
+        df = get_metrics_df()
+        for _, row in df.iterrows():
+            city_data = row.to_dict()
+            city = city_data['city']
+            temp = city_data['avg_temperature_C']
+            aqi = city_data['avg_USAQI']
+            humidity = city_data.get('avg_humidity_percent', 50)
+            min_temp = city_data.get('min_temperature_C', temp - 5)
+            max_temp = city_data.get('max_temperature_C', temp + 5)
+            
+            temp_score = max(0, 100 - abs(temp - 22) * 5)
+            aqi_score = max(0, 100 - aqi)
+            comfort_score = int((temp_score * 0.7) + (aqi_score * 0.3))
+            cdd = max(0, temp - 24)
+            energy_warning = cdd > 5
+            
+            latest_metrics_cache[city] = {
+                "city": city,
+                "timestamp": str(pd.Timestamp.now()),
+                "current_temperature": temp,
+                "current_aqi": aqi,
+                "current_humidity": humidity,
+                "min_temperature": min_temp,
+                "max_temperature": max_temp,
+                "metrics": {
+                    "comfort_score": comfort_score,
+                    "cooling_degree_days": round(cdd, 2),
+                    "energy_warning": energy_warning
+                }
+            }
+    except Exception as e:
+        print("Could not pre-populate cache:", e)
+
+    def kafka_consumer_thread():
+        conf = {
+            'bootstrap.servers': 'localhost:9092',
+            'group.id': 'fastapi-sse-group',
+            'auto.offset.reset': 'latest'
+        }
+        try:
+            consumer = Consumer(conf)
+            consumer.subscribe(['processed-weather-data'])
+            while True:
+                msg = consumer.poll(1.0)
+                if msg is None: continue
+                if msg.error():
+                    if msg.error().code() == KafkaError._PARTITION_EOF: continue
+                    else: break
+                
+                try:
+                    data = json.loads(msg.value().decode('utf-8'))
+                    city = data.get('city')
+                    if city:
+                        latest_metrics_cache[city] = data
+                except Exception:
+                    pass
+        except Exception as e:
+            print("Kafka Consumer Error:", e)
+
+    t = threading.Thread(target=kafka_consumer_thread, daemon=True)
+    t.start()
 
 base_dir = Path(__file__).resolve().parent
 output_dir = base_dir / 'output'
@@ -27,34 +101,28 @@ def get_forecast_df():
 @app.get("/api/metrics")
 def get_metrics():
     try:
-        df = get_metrics_df()
-        
-        # Calculate Comfort Score and Energy Load (CDD Warning)
-        enhanced_metrics = []
-        for _, row in df.iterrows():
-            city_data = row.to_dict()
-            
-            # Comfort Score Calculation
-            temp = city_data['avg_temperature_C']
-            aqi = city_data['avg_USAQI']
-            
-            temp_score = max(0, 100 - abs(temp - 22) * 5)
-            aqi_score = max(0, 100 - aqi)
-            comfort_score = int((temp_score * 0.7) + (aqi_score * 0.3))
-            
-            # Energy Load Warning (Cooling Degree Days)
-            cdd = max(0, temp - 24)
-            energy_warning = cdd > 5 # Significant cooling needed
-            
-            city_data['comfort_score'] = comfort_score
-            city_data['cdd'] = round(cdd, 2)
-            city_data['energy_warning'] = energy_warning
-            
-            enhanced_metrics.append(city_data)
-            
-        return enhanced_metrics
+        # Fallback REST endpoint matching the new real-time structure
+        return list(latest_metrics_cache.values())
     except Exception as e:
         return {"error": str(e)}
+
+async def event_generator():
+    last_sent = {}
+    while True:
+        updates = []
+        for city, data in latest_metrics_cache.items():
+            if last_sent.get(city) != data.get('timestamp'):
+                updates.append(data)
+                last_sent[city] = data.get('timestamp')
+        
+        if updates:
+            yield f"data: {json.dumps(updates)}\n\n"
+            
+        await asyncio.sleep(1)
+
+@app.get("/api/stream/metrics")
+async def stream_metrics():
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @app.get("/api/forecast")
 def get_forecast():

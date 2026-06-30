@@ -19,6 +19,26 @@ export default function Dashboard() {
     fetch(`${API_BASE}/summary`).then(res => res.json()).then(data => setSummary(data.summary));
     fetch(`${API_BASE}/metrics`).then(res => res.json()).then(data => setMetrics(data));
     fetch(`${API_BASE}/forecast`).then(res => res.json()).then(data => setForecast(data));
+
+    // Setup SSE Connection for Real-Time Kafka Data
+    const eventSource = new EventSource(`${API_BASE}/stream/metrics`);
+    eventSource.onmessage = (event) => {
+      const updates = JSON.parse(event.data);
+      setMetrics((prevMetrics) => {
+        const newMetrics = [...prevMetrics];
+        updates.forEach(update => {
+          const index = newMetrics.findIndex(m => m.city === update.city);
+          if (index !== -1) {
+            newMetrics[index] = update;
+          } else {
+            newMetrics.push(update);
+          }
+        });
+        return newMetrics;
+      });
+    };
+
+    return () => eventSource.close();
   }, []);
 
   const handleOptimalTime = async () => {
@@ -121,42 +141,64 @@ export default function Dashboard() {
       </div>
 
       {/* Metrics Grid */}
-      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Live Engine Metrics</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '2rem' }}>Live Engine Metrics</h2>
+        <motion.span 
+          animate={{ opacity: [1, 0.5, 1] }} 
+          transition={{ duration: 1.5, repeat: Infinity }}
+          style={{ background: 'rgba(231, 76, 60, 0.2)', color: '#e74c3c', padding: '0.3rem 0.8rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+        >
+          <div style={{ width: '8px', height: '8px', background: '#e74c3c', borderRadius: '50%' }}></div>
+          KAFKA STREAM
+        </motion.span>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        {metrics.map(city => (
-          <div key={city.city} className="glass-panel" style={{ padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.4rem' }}>{city.city}</h3>
-              <span style={{ padding: '0.3rem 0.8rem', background: 'rgba(212, 175, 55, 0.2)', color: 'var(--accent)', borderRadius: '20px', fontWeight: 800 }}>{city.avg_temperature_C.toFixed(1)}°C</span>
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
-              <span>Air Quality (US)</span>
-              <span>{city.avg_USAQI.toFixed(0)} AQI</span>
-            </div>
+        {metrics.map(city => {
+          // Safeguard: handle both old fallback format and new kafka format
+          const temp = city.current_temperature ?? city.avg_temperature_C;
+          const aqi = city.current_aqi ?? city.avg_USAQI;
+          const humidity = city.current_humidity ?? city.avg_humidity_percent ?? 50;
+          const comfort = city.metrics?.comfort_score ?? city.comfort_score;
+          const cdd = city.metrics?.cooling_degree_days ?? city.cdd;
+          const energyWarning = city.metrics?.energy_warning ?? city.energy_warning;
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
-              <span>Humidity</span>
-              <span>{city.avg_humidity_percent.toFixed(0)}%</span>
-            </div>
-            
-            <div style={{ marginTop: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                <span>Comfort Score</span>
-                <span style={{ color: 'var(--accent)', fontWeight: 800 }}>{city.comfort_score}/100</span>
+          return (
+            <div key={city.city} className="glass-panel" style={{ padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.4rem' }}>{city.city}</h3>
+                <span style={{ padding: '0.3rem 0.8rem', background: 'rgba(212, 175, 55, 0.2)', color: 'var(--accent)', borderRadius: '20px', fontWeight: 800 }}>
+                  {temp?.toFixed(1)}°C
+                </span>
               </div>
-              <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                <motion.div initial={{ width: 0 }} animate={{ width: `${city.comfort_score}%` }} transition={{ duration: 1, delay: 0.5 }} style={{ height: '100%', background: 'var(--accent)' }} />
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
+                <span>Air Quality (US)</span>
+                <span>{aqi?.toFixed(0)} AQI</span>
               </div>
-            </div>
 
-            {city.energy_warning && (
-              <div style={{ marginTop: '1rem', background: 'rgba(231, 76, 60, 0.1)', color: '#e74c3c', padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>
-                <AlertTriangle size={16} /> High Energy Load (CDD: {city.cdd})
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
+                <span>Humidity</span>
+                <span>{humidity?.toFixed(0)}%</span>
               </div>
-            )}
-          </div>
-        ))}
+              
+              <div style={{ marginTop: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                  <span>Comfort Score</span>
+                  <span style={{ color: 'var(--accent)', fontWeight: 800 }}>{comfort}/100</span>
+                </div>
+                <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${comfort}%` }} transition={{ duration: 1, delay: 0.5 }} style={{ height: '100%', background: 'var(--accent)' }} />
+                </div>
+              </div>
+
+              {energyWarning && (
+                <div style={{ marginTop: '1rem', background: 'rgba(231, 76, 60, 0.1)', color: '#e74c3c', padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>
+                  <AlertTriangle size={16} /> High Energy Load (CDD: {cdd})
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </motion.div>
   );

@@ -1,6 +1,6 @@
-# Weather Data Engine & Dashboard (Cinematic React Edition)
+# Weather Data Engine & Dashboard (Enterprise Streaming Edition)
 
-A massive, premium, multi-page application for extracting, processing, and visualizing meteorological and air quality data for 10 Egyptian cities. Built with a robust **FastAPI backend** and a cinematic **React + Vite frontend** powered by GSAP, Framer Motion, and tsParticles.
+A massive, premium, multi-page application for extracting, processing, and visualizing meteorological and air quality data for 10 Egyptian cities. Built with a robust **FastAPI backend**, a real-time **Apache Kafka Data Pipeline**, and a cinematic **React + Vite frontend** powered by GSAP, Framer Motion, and tsParticles.
 
 ---
 
@@ -22,11 +22,15 @@ A massive, premium, multi-page application for extracting, processing, and visua
 
 ---
 
-## Project Architecture
+## Project Architecture (V3 Enterprise Streaming)
 
-### 1. Data Pipeline (ETL)
-- `code/LastEditWDE.py`: The extraction engine. Uses batched API requests.
-- `code/processing.py`: The transformation engine. Uses `pandas`.
+We have upgraded from a static batch-processing script to a massive **Real-Time Data Engineering Architecture**.
+
+### 1. Real-Time Data Pipeline (ETL via Kafka)
+- **`code/kafka_producer.py` (Ingestion):** A continuous script that fetches live API data every 60 seconds and streams it to the `raw-weather-data` Kafka topic.
+- **`code/kafka_consumer.py` (Stream Processor):** Listens to raw data, calculates Comfort Scores & Energy Load warnings in real-time, and pushes results to the `processed-weather-data` topic.
+- **`docker-compose.yml`:** Orchestrates the Kafka Broker, Zookeeper, and AKHQ (Web UI for Kafka on port 8080).
+- **PostgreSQL (Upcoming Phase 3):** A TimescaleDB/PostgreSQL database to store the processed stream for blazing-fast API queries.
 
 ### 2. Smart Backend (FastAPI)
 - `api.py`: A robust REST API built with **FastAPI**. Includes Smart Operations:

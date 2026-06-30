@@ -52,7 +52,7 @@ export default function CityProfile() {
 
   return (
     <>
-      <DynamicBackground temp={cityMetrics.avg_temperature_C} humidity={cityMetrics.avg_humidity_percent} />
+      <DynamicBackground temp={cityMetrics.current_temperature ?? cityMetrics.avg_temperature_C} humidity={cityMetrics.current_humidity ?? cityMetrics.avg_humidity_percent ?? 50} />
       <motion.div 
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -69,7 +69,7 @@ export default function CityProfile() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginTop: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase' }}>Deep Dive Analytics Profile</p>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '4rem', fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>{cityMetrics.avg_temperature_C.toFixed(1)}°</div>
+          <div style={{ fontSize: '4rem', fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>{(cityMetrics.current_temperature ?? cityMetrics.avg_temperature_C).toFixed(1)}°</div>
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Current Average</p>
         </div>
       </div>
@@ -79,21 +79,21 @@ export default function CityProfile() {
           <div style={{ padding: '1rem', background: 'rgba(212,175,55,0.1)', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.2)' }}><Thermometer color="var(--accent)" size={32} /></div>
           <div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Temperature Range</p>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff' }}>{cityMetrics.min_temperature_C}° - {cityMetrics.max_temperature_C}°</h3>
+            <h3 style={{ fontSize: '1.8rem', color: '#fff' }}>{cityMetrics.min_temperature ?? cityMetrics.min_temperature_C}° - {cityMetrics.max_temperature ?? cityMetrics.max_temperature_C}°</h3>
           </div>
         </div>
         <div className="glass-panel" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{ padding: '1rem', background: 'rgba(212,175,55,0.1)', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.2)' }}><Droplets color="var(--accent)" size={32} /></div>
           <div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Humidity Level</p>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff' }}>{cityMetrics.avg_humidity_percent.toFixed(0)}%</h3>
+            <h3 style={{ fontSize: '1.8rem', color: '#fff' }}>{(cityMetrics.current_humidity ?? cityMetrics.avg_humidity_percent ?? 50).toFixed(0)}%</h3>
           </div>
         </div>
         <div className="glass-panel" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{ padding: '1rem', background: 'rgba(212,175,55,0.1)', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.2)' }}><Wind color="var(--accent)" size={32} /></div>
           <div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Air Quality (AQI)</p>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff' }}>{cityMetrics.avg_USAQI.toFixed(0)}</h3>
+            <h3 style={{ fontSize: '1.8rem', color: '#fff' }}>{(cityMetrics.current_aqi ?? cityMetrics.avg_USAQI).toFixed(0)}</h3>
           </div>
         </div>
       </div>

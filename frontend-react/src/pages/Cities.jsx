@@ -114,9 +114,9 @@ export default function Cities() {
           }}
         >
           <h4 style={{ margin: 0, color: 'var(--accent)', fontSize: '1.3rem', marginBottom: '0.5rem' }}>{tooltip.data.city}</h4>
-          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>{tooltip.data.avg_temperature_C.toFixed(1)}°C</p>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>AQI: {tooltip.data.avg_USAQI.toFixed(0)}</p>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Comfort: {tooltip.data.comfort_score}/100</p>
+          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>{(tooltip.data.current_temperature ?? tooltip.data.avg_temperature_C).toFixed(1)}°C</p>
+          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>AQI: {(tooltip.data.current_aqi ?? tooltip.data.avg_USAQI).toFixed(0)}</p>
+          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Comfort: {tooltip.data.metrics?.comfort_score ?? tooltip.data.comfort_score}/100</p>
         </motion.div>
       )}
     </motion.div>

@@ -4,3 +4,5 @@ requests-cache>=1.0.0
 retry-requests
 fastapi
 uvicorn
+confluent-kafka
+psycopg2-binary
