@@ -1,0 +1,55 @@
+
+> weather-engine-root@1.0.0 dev
+> npm start
+
+
+> weather-engine-root@1.0.0 start
+> concurrently "npm run dev:backend" "npm run dev:frontend"
+
+[0] 
+[0] > weather-engine-root@1.0.0 dev:backend
+[0] > . venv/bin/activate && uvicorn api:app --reload --port 8000
+[0] 
+[1] 
+[1] > weather-engine-root@1.0.0 dev:frontend
+[1] > cd frontend-react && npm run dev
+[1] 
+[1] 
+[1] > frontend-react@0.0.0 dev
+[1] > vite
+[1] 
+[0] INFO:     Will watch for changes in these directories: ['/home/vdtafury/Desktop/last-20260624T033336Z-3-001./last']
+[1] 10:16:17 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+[1] 
+[1]   VITE v8.1.0  ready in 860 ms
+[1] 
+[1]   ➜  Local:   http://localhost:5173/
+[1]   ➜  Network: use --host to expose
+[1] 10:16:18 AM [vite] (client) [optimizer] bundling dependencies...
+[0] INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[0] INFO:     Started reloader process [9132] using StatReload
+[0] INFO:     Started server process [9189]
+[0] INFO:     Waiting for application startup.
+[0] INFO:     Application startup complete.
+[0] %3|1782890184.538|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT)
+[0] %3|1782890184.590|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 1 identical error(s) suppressed)
+[0] %3|1782890214.594|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 581 identical error(s) suppressed)
+[0] %3|1782890244.614|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 582 identical error(s) suppressed)
+[0] %3|1782890274.635|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 582 identical error(s) suppressed)
+[0] %3|1782890304.668|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 582 identical error(s) suppressed)
+[0] %3|1782890334.685|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 582 identical error(s) suppressed)
+[0] %3|1782890364.688|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 582 identical error(s) suppressed)
+[0] %3|1782890394.698|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 582 identical error(s) suppressed)
+[0] %3|1782890424.726|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Connect to ipv4#127.0.0.1:9092 failed: Connection refused (after 0ms in state CONNECT, 582 identical error(s) suppressed)
+[0] %6|1782890439.416|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Disconnected: connection closed by peer: receive 0 after POLLIN (after 0ms in state APIVERSION_QUERY)
+[0] %6|1782890439.573|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Disconnected: connection reset by peer (after 0ms in state APIVERSION_QUERY)
+[0] %6|1782890454.769|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Disconnected: connection reset by peer (after 1ms in state APIVERSION_QUERY, 3 identical error(s) suppressed)
+[0] %6|1782890484.775|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Disconnected: connection reset by peer (after 0ms in state APIVERSION_QUERY, 3 identical error(s) suppressed)
+[0] %6|1782890592.328|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/1]: localhost:9092/1: Disconnected: connection closed by peer: receive 0 after POLLIN (after 98545ms in state UP)
+[0] %6|1782890592.330|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/1]: localhost:9092/1: Disconnected: connection reset by peer (after 0ms in state APIVERSION_QUERY)
+[0] %6|1782890592.332|FAIL|rdkafka#consumer-1| [thrd:GroupCoordinator]: GroupCoordinator: localhost:9092: Disconnected: connection closed by peer: receive 0 after POLLIN (after 97659ms in state UP)
+[0] %6|1782890592.334|FAIL|rdkafka#consumer-1| [thrd:GroupCoordinator]: GroupCoordinator: localhost:9092: Disconnected: connection reset by peer (after 1ms in state APIVERSION_QUERY)
+[0] %6|1782890592.390|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Disconnected: connection reset by peer (after 1ms in state APIVERSION_QUERY)
+[0] %6|1782890592.541|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/bootstrap]: localhost:9092/bootstrap: Disconnected: connection reset by peer (after 1ms in state APIVERSION_QUERY, 1 identical error(s) suppressed)
+[0] %6|1782890592.550|FAIL|rdkafka#consumer-1| [thrd:GroupCoordinator]: GroupCoordinator: localhost:9092: Disconnected: connection reset by peer (after 0ms in state APIVERSION_QUERY, 1 identical error(s) suppressed)
+[0] %6|1782890592.624|FAIL|rdkafka#consumer-1| [thrd:localhost:9092/1]: localhost:9092/1: Disconnected: connection reset by peer (after 0ms in state APIVERSION_QUERY, 1 identical error(s) suppressed)

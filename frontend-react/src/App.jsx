@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Cities from './pages/Cities';
 import CityProfile from './pages/CityProfile';
 import TravelPlanner from './pages/TravelPlanner';
+import Showcase from './pages/Showcase';
 import Chatbot from './components/Chatbot';
 
 function AnimatedRoutes() {
@@ -21,6 +22,7 @@ function AnimatedRoutes() {
         <Route path="/cities" element={<Cities />} />
         <Route path="/city/:name" element={<CityProfile />} />
         <Route path="/planner" element={<TravelPlanner />} />
+        <Route path="/showcase" element={<Showcase />} />
       </Routes>
     </AnimatePresence>
   );

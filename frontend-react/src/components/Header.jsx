@@ -9,7 +9,8 @@ export default function Header() {
     { name: 'Home', path: '/' },
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Cities Archive', path: '/cities' },
-    { name: 'Route Planner', path: '/planner' }
+    { name: 'Route Planner', path: '/planner' },
+    { name: 'Showcase', path: '/showcase' }
   ];
 
   return (
